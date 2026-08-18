@@ -4,142 +4,189 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>World Weather Explorer</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
-<style>
-  :root{
-    --bg-from:#7ec8e3;
-    --bg-to:#fff6b8;
-    --landmark-fill:#24303d;
-    --ground-fill:#1b2531;
-    --mountain-fill:#3a4656;
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['"Pretendard Variable"','Pretendard','system-ui','sans-serif'] },
+      borderRadius: { panel: '24px', card: '16px' },
+      backdropBlur: { panel: '24px', card: '12px', chip: '8px' },
+      boxShadow: {
+        panel: '0 8px 32px rgba(0,0,0,0.24)',
+        card:  '0 4px 16px rgba(0,0,0,0.16)',
+      },
+      colors: {
+        accent: '#FBBF24',
+        danger: '#FB7185',
+        ink:  { 1:'var(--ink-primary)', 2:'var(--ink-secondary)', 3:'var(--ink-tertiary)' },
+      },
+      transitionTimingFunction: { panel: 'cubic-bezier(0.32,0.72,0,1)' },
+    }
   }
+}
+</script>
+<style>
+  :root{ font-feature-settings: "tnum" 1; }
   html,body{ height:100%; }
   body{
     margin:0;
-    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;
     background: var(--bg-to);
-    color:#0f172a;
-  }
-  body[data-text="light"] .on-bg{ color:#f8fafc; }
-  body[data-text="dark"] .on-bg{ color:#0f172a; }
-  body[data-text="light"] .on-bg-sub{ color:#e2e8f0; }
-  body[data-text="dark"] .on-bg-sub{ color:#334155; }
-
-  #bg-layer{
-    position:fixed; inset:0; z-index:0;
-    background-image: linear-gradient(180deg, var(--bg-from), var(--bg-to));
-    transition: background-image .8s ease-in-out;
+    color: var(--ink-primary);
   }
 
-  /* Scene */
+  /* ---------- Theme tokens (DESIGN.md 3.1 / 3.2) ---------- */
+  body[data-theme="clear-day"]{ --bg-from:#38BDF8; --bg-to:#FDE68A; --ink-primary:#0F172A; --ink-secondary:rgba(15,23,42,.72); --ink-tertiary:rgba(15,23,42,.52); --scrim:rgba(255,255,255,.32); --scrim-strong:rgba(255,255,255,.72); --glass-l1:rgba(255,255,255,.38); --glass-l2:rgba(255,255,255,.30); --glass-l3:rgba(255,255,255,.34); }
+  body[data-theme="clear-night"]{ --bg-from:#1E3A8A; --bg-to:#0B1026; --ink-primary:#F8FAFC; --ink-secondary:rgba(248,250,252,.78); --ink-tertiary:rgba(248,250,252,.58); --scrim:rgba(0,0,0,.28); --scrim-strong:rgba(0,0,0,.72); --glass-l1:rgba(255,255,255,.14); --glass-l2:rgba(255,255,255,.10); --glass-l3:rgba(255,255,255,.12); }
+  body[data-theme="cloudy-day"]{ --bg-from:#5B8FB9; --bg-to:#C7D5E0; --ink-primary:#0F172A; --ink-secondary:rgba(15,23,42,.72); --ink-tertiary:rgba(15,23,42,.52); --scrim:rgba(255,255,255,.32); --scrim-strong:rgba(255,255,255,.72); --glass-l1:rgba(255,255,255,.38); --glass-l2:rgba(255,255,255,.30); --glass-l3:rgba(255,255,255,.34); }
+  body[data-theme="cloudy-night"]{ --bg-from:#1F2937; --bg-to:#030712; --ink-primary:#F8FAFC; --ink-secondary:rgba(248,250,252,.78); --ink-tertiary:rgba(248,250,252,.58); --scrim:rgba(0,0,0,.28); --scrim-strong:rgba(0,0,0,.72); --glass-l1:rgba(255,255,255,.14); --glass-l2:rgba(255,255,255,.10); --glass-l3:rgba(255,255,255,.12); }
+  body[data-theme="fog-day"]{ --bg-from:#8FA3B0; --bg-to:#DDE4E9; --ink-primary:#0F172A; --ink-secondary:rgba(15,23,42,.72); --ink-tertiary:rgba(15,23,42,.52); --scrim:rgba(255,255,255,.32); --scrim-strong:rgba(255,255,255,.72); --glass-l1:rgba(255,255,255,.38); --glass-l2:rgba(255,255,255,.30); --glass-l3:rgba(255,255,255,.34); }
+  body[data-theme="fog-night"]{ --bg-from:#334155; --bg-to:#0F172A; --ink-primary:#F8FAFC; --ink-secondary:rgba(248,250,252,.78); --ink-tertiary:rgba(248,250,252,.58); --scrim:rgba(0,0,0,.28); --scrim-strong:rgba(0,0,0,.72); --glass-l1:rgba(255,255,255,.14); --glass-l2:rgba(255,255,255,.10); --glass-l3:rgba(255,255,255,.12); }
+  body[data-theme="rain-day"]{ --bg-from:#1D4ED8; --bg-to:#0E7490; --ink-primary:#F8FAFC; --ink-secondary:rgba(248,250,252,.78); --ink-tertiary:rgba(248,250,252,.58); --scrim:rgba(0,0,0,.28); --scrim-strong:rgba(0,0,0,.72); --glass-l1:rgba(255,255,255,.14); --glass-l2:rgba(255,255,255,.10); --glass-l3:rgba(255,255,255,.12); }
+  body[data-theme="rain-night"]{ --bg-from:#0C2340; --bg-to:#020617; --ink-primary:#F8FAFC; --ink-secondary:rgba(248,250,252,.78); --ink-tertiary:rgba(248,250,252,.58); --scrim:rgba(0,0,0,.28); --scrim-strong:rgba(0,0,0,.72); --glass-l1:rgba(255,255,255,.14); --glass-l2:rgba(255,255,255,.10); --glass-l3:rgba(255,255,255,.12); }
+  body[data-theme="snow-day"]{ --bg-from:#A5D8FF; --bg-to:#F8FAFC; --ink-primary:#0F172A; --ink-secondary:rgba(15,23,42,.72); --ink-tertiary:rgba(15,23,42,.52); --scrim:rgba(255,255,255,.32); --scrim-strong:rgba(255,255,255,.72); --glass-l1:rgba(255,255,255,.38); --glass-l2:rgba(255,255,255,.30); --glass-l3:rgba(255,255,255,.34); }
+  body[data-theme="snow-night"]{ --bg-from:#1E3A5F; --bg-to:#0B1B2B; --ink-primary:#F8FAFC; --ink-secondary:rgba(248,250,252,.78); --ink-tertiary:rgba(248,250,252,.58); --scrim:rgba(0,0,0,.28); --scrim-strong:rgba(0,0,0,.72); --glass-l1:rgba(255,255,255,.14); --glass-l2:rgba(255,255,255,.10); --glass-l3:rgba(255,255,255,.12); }
+  body[data-theme="storm-day"]{ --bg-from:#5B21B6; --bg-to:#1E1B4B; --ink-primary:#F8FAFC; --ink-secondary:rgba(248,250,252,.78); --ink-tertiary:rgba(248,250,252,.58); --scrim:rgba(0,0,0,.28); --scrim-strong:rgba(0,0,0,.72); --glass-l1:rgba(255,255,255,.14); --glass-l2:rgba(255,255,255,.10); --glass-l3:rgba(255,255,255,.12); }
+  body[data-theme="storm-night"]{ --bg-from:#1E1B4B; --bg-to:#020617; --ink-primary:#F8FAFC; --ink-secondary:rgba(248,250,252,.78); --ink-tertiary:rgba(248,250,252,.58); --scrim:rgba(0,0,0,.28); --scrim-strong:rgba(0,0,0,.72); --glass-l1:rgba(255,255,255,.14); --glass-l2:rgba(255,255,255,.10); --glass-l3:rgba(255,255,255,.12); }
+
+  #bg-layer{ position:fixed; inset:0; z-index:0; background-image:linear-gradient(160deg, var(--bg-from) 0%, var(--bg-to) 100%); transition:background-image .8s ease-in-out; }
+
+  /* ---------- Glass tiers (DESIGN.md 4.1 / 4.2) ---------- */
+  .glass-l1{ backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); background:var(--glass-l1); border:1px solid rgba(255,255,255,.22); box-shadow:0 8px 32px rgba(0,0,0,.24); }
+  .glass-l2{ backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); background:var(--glass-l2); border:1px solid rgba(255,255,255,.16); box-shadow:0 4px 16px rgba(0,0,0,.16); }
+  .glass-l3{ backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); background:var(--glass-l3); border:1px solid rgba(255,255,255,.20); }
+  .glass-scrim{ position:relative; isolation:isolate; }
+  .glass-scrim::before{ content:""; position:absolute; inset:0; z-index:-1; border-radius:inherit; background:var(--scrim); }
+  @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+    .glass-scrim::before{ background:var(--scrim-strong); }
+  }
+
+  .text-ink-1{ color:var(--ink-primary); }
+  .text-ink-2{ color:var(--ink-secondary); }
+  .text-ink-3{ color:var(--ink-tertiary); }
+
+  /* ---------- Scene ---------- */
   #scene-wrapper{ position:relative; }
   #scene-svg{ display:block; width:100%; height:auto; }
   .landmark{ cursor:pointer; outline:none; }
-  .landmark .silhouette{ fill: var(--landmark-fill); transition: filter .2s ease, opacity .3s ease; }
-  .landmark:hover .silhouette,
-  .landmark:focus-visible .silhouette{ filter:brightness(1.4); }
+  .landmark .silhouette{ fill:url(#glassFill); stroke:rgba(255,255,255,.55); stroke-width:2; transition:stroke .16s ease-out, opacity .3s ease; filter:drop-shadow(0 -1px .4px rgba(255,255,255,.35)); }
+  .landmark:hover .silhouette, .landmark:focus-visible .silhouette{ stroke:rgba(255,255,255,.9); }
+  .landmark.selected .silhouette{ stroke:#FBBF24; stroke-width:2.5; }
   .landmark .hit-area{ fill:transparent; }
-  .landmark .label{ opacity:0; transition:opacity .2s ease; fill:#fff; paint-order:stroke; stroke:#0f172a; stroke-width:4px; font-size:20px; font-weight:600; }
-  .landmark:hover .label,
-  .landmark:focus-visible .label{ opacity:1; }
+  .landmark .label{ opacity:0; transition:opacity .16s ease-out; fill:#fff; paint-order:stroke; stroke:#0f172a; stroke-width:4px; font-size:20px; font-weight:600; }
+  .landmark:hover .label, .landmark:focus-visible .label{ opacity:1; }
+  .focus-ring{ opacity:0; fill:none; stroke:#FBBF24; stroke-width:3; stroke-dasharray:4 3; }
   .landmark:focus-visible .focus-ring{ opacity:1; }
-  .focus-ring{ opacity:0; fill:none; stroke:#fff; stroke-width:3; stroke-dasharray:4 3; }
-  .landmark.filtered-out{ opacity:0.2; filter:grayscale(1); pointer-events:none; }
-  .badge-content{ opacity:0; transition:opacity .3s ease; }
-  .badge-content.ready{ opacity:1; }
-  .badge-emoji{ font-size:26px; }
-  .badge-temp{ font-size:20px; font-weight:700; fill:#fff; paint-order:stroke; stroke:#0f172a; stroke-width:4px; }
-  .badge-skeleton rect{ fill:#94a3b8; }
-  .skeleton-pulse{ animation: pulse 1.5s ease-in-out infinite; }
-  @keyframes pulse{ 0%,100%{ opacity:.35; } 50%{ opacity:.8; } }
+  .landmark.filtered-out{ opacity:.2; filter:grayscale(1); pointer-events:none; }
 
-  #night-overlay{ fill:#050914; transition: opacity 1.2s ease-in-out; pointer-events:none; }
+  .badge-content{ opacity:0; transform:translateY(4px); transition:opacity .32s ease-out, transform .32s ease-out; }
+  .badge-content.ready{ opacity:1; transform:translateY(0); }
+  .badge-pill{ fill:var(--glass-l3); stroke:rgba(255,255,255,.20); stroke-width:1; }
+  .badge-emoji{ font-size:14px; }
+  .badge-temp{ font-size:12px; font-weight:600; fill:#fff; paint-order:stroke; stroke:#0f172a; stroke-width:3px; }
+  .badge-skeleton rect{ fill:rgba(255,255,255,.2); }
+  .skeleton-pulse{ animation:pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:.16; } 50%{ opacity:.28; } }
 
-  @media (max-width: 767px){
+  #night-overlay{ fill:#050914; transition:opacity 1.2s ease-in-out; pointer-events:none; }
+
+  @media (max-width:767px){
     #scene-wrapper{ overflow-x:auto; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; }
     #scene-svg{ width:1600px; max-width:none; }
     .landmark .label{ display:none; }
     .scroll-hint{ display:flex; }
   }
-  @media (min-width: 768px){
-    .scroll-hint{ display:none; }
-  }
+  @media (min-width:768px){ .scroll-hint{ display:none; } }
 
-  /* Detail panel */
-  #detail-panel{
-    position:fixed; z-index:50; background:rgba(15,23,42,0.92); color:#f1f5f9;
-    transition: transform .35s ease-in-out;
-    backdrop-filter: blur(6px);
-  }
+  /* ---------- Detail panel ---------- */
+  #detail-panel{ position:fixed; z-index:50; color:var(--ink-primary); transition:transform .32s cubic-bezier(0.32,0.72,0,1); }
   @media (min-width:768px){
-    #detail-panel{ top:0; right:0; height:100%; width:440px; transform:translateX(100%); box-shadow:-8px 0 24px rgba(0,0,0,.25); }
+    #detail-panel{ top:24px; right:24px; bottom:24px; width:440px; border-radius:24px; transform:translateX(calc(100% + 24px)); }
     #detail-panel.open{ transform:translateX(0); }
   }
   @media (max-width:767px){
-    #detail-panel{ left:0; right:0; bottom:0; height:85vh; border-radius:20px 20px 0 0; transform:translateY(100%); }
+    #detail-panel{ left:0; right:0; bottom:0; height:85vh; border-radius:24px 24px 0 0; transform:translateY(100%); }
     #detail-panel.open{ transform:translateY(0); }
   }
   #panel-backdrop{ position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.25); opacity:0; pointer-events:none; transition:opacity .3s ease; }
   #panel-backdrop.open{ opacity:1; pointer-events:auto; }
+  #drag-handle{ width:40px; height:4px; border-radius:999px; background:rgba(255,255,255,.4); margin:10px auto 0; }
 
-  .chip{ transition: background-color .15s ease, color .15s ease, opacity .15s ease; }
-  .chip[aria-pressed="true"]{ background:#0f172a; color:#fff; }
+  /* ---------- Chips ---------- */
+  .chip{ height:32px; padding:0 14px; font-size:12px; font-weight:600; border-radius:9999px; transition:background-color .12s ease-out,color .12s ease-out; color:var(--ink-primary); white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
+  .chip[aria-pressed="true"]{ background:#FBBF24 !important; color:#0F172A !important; border-color:transparent; }
+  .chip-x{ display:none; font-size:12px; }
+  .chip[aria-pressed="true"] .chip-x{ display:inline; }
   .chip:disabled{ opacity:.4; cursor:not-allowed; }
 
-  .forecast-card{ scroll-snap-align:start; }
+  .skel-block{ background:rgba(255,255,255,.16); animation:pulse 1.6s ease-in-out infinite; }
+
+  .forecast-card{ scroll-snap-align:start; width:88px; height:148px; flex-shrink:0; }
   #forecast-scroll{ scroll-snap-type:x proximity; }
 
-  .skel-block{ background:rgba(255,255,255,.15); border-radius:8px; animation: pulse 1.5s ease-in-out infinite; }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  @media (prefers-reduced-motion:reduce){
+    *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+    .skeleton-pulse, .skel-block{ animation:none !important; opacity:.20 !important; }
   }
 
   ::-webkit-scrollbar{ height:8px; width:8px; }
   ::-webkit-scrollbar-thumb{ background:rgba(148,163,184,.5); border-radius:4px; }
+  input::placeholder{ color:var(--ink-tertiary); }
 </style>
 </head>
-<body data-text="dark">
+<body data-theme="clear-day">
 
 <div id="bg-layer" aria-hidden="true"></div>
 
 <div id="app" class="relative z-10 min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="sticky top-0 z-30 px-4 py-3 md:px-6 md:py-4 backdrop-blur-sm bg-white/10">
-    <div class="flex items-center gap-3 flex-wrap">
-      <h1 class="on-bg text-lg md:text-xl font-bold whitespace-nowrap">World Weather Explorer</h1>
+  <header class="sticky top-0 z-30 h-14 md:h-16 flex items-center px-4 md:px-6 glass-l1 glass-scrim">
+    <div class="flex items-center gap-3 flex-wrap w-full">
+      <h1 class="text-[16px] md:text-[18px] font-bold tracking-[-0.01em] whitespace-nowrap text-ink-1">World Weather Explorer</h1>
 
-      <div class="relative flex-1 min-w-[180px] max-w-md">
+      <div class="relative flex-1 min-w-[160px] max-w-md">
+        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[16px] pointer-events-none">🔍</span>
         <input id="search-input" type="text" autocomplete="off"
           role="combobox" aria-expanded="false" aria-controls="search-dropdown" aria-autocomplete="list"
           placeholder="도시 검색 (예: 파리, Tokyo)"
-          class="w-full rounded-full px-4 py-2 text-sm bg-white/90 text-slate-900 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-900" />
+          class="w-full h-11 rounded-card pl-10 pr-4 text-[15px] glass-l1 text-ink-1 outline-none focus:ring-2 focus:ring-accent" />
         <div id="search-dropdown" role="listbox" aria-label="검색 결과"
-          class="hidden absolute left-0 right-0 top-full mt-2 z-40 bg-white text-slate-900 rounded-xl shadow-xl overflow-hidden max-h-80 overflow-y-auto"></div>
+          class="hidden absolute left-0 right-0 top-full mt-2 z-40 glass-l1 glass-scrim rounded-card overflow-hidden max-h-80 overflow-y-auto"></div>
       </div>
 
-      <button id="filter-toggle-btn" class="md:hidden relative on-bg text-sm font-medium px-3 py-2 rounded-full bg-white/20">
+      <button id="filter-toggle-btn" class="md:hidden relative h-11 px-4 rounded-full glass-l3 text-[13px] font-medium text-ink-1">
         필터
-        <span id="filter-count-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center"></span>
+        <span id="filter-count-badge" class="hidden absolute -top-1 -right-1 bg-danger text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center"></span>
       </button>
     </div>
   </header>
 
   <!-- Filter bar -->
-  <section id="filter-bar" class="z-20 px-4 md:px-6 py-3 bg-white/10 backdrop-blur-sm hidden md:block">
-    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-      <div class="flex flex-wrap items-center gap-1.5" data-axis="weather" role="group" aria-label="날씨 상태 필터"></div>
-      <div class="flex flex-wrap items-center gap-1.5" data-axis="region" role="group" aria-label="지역 필터"></div>
-      <div class="flex flex-wrap items-center gap-1.5" data-axis="daynight" role="group" aria-label="낮/밤 필터"></div>
-      <div class="flex items-center gap-3 ml-auto">
-        <span id="filter-counter" class="on-bg text-sm font-medium whitespace-nowrap">12곳 중 12곳</span>
-        <button id="clear-filters-btn" class="text-sm underline on-bg-sub whitespace-nowrap">전체 해제</button>
+  <section id="filter-bar" class="z-20 px-4 md:px-6 py-3 md:py-4 hidden md:block">
+    <div class="flex flex-col gap-2.5 md:flex-row md:items-center md:gap-6 md:flex-wrap">
+      <div class="flex items-center gap-2 overflow-x-auto md:overflow-visible pb-1 md:pb-0">
+        <span class="shrink-0 text-[13px] text-ink-3">날씨</span>
+        <div class="flex gap-2 shrink-0" data-axis="weather" role="group" aria-label="날씨 상태 필터"></div>
+      </div>
+      <div class="flex items-center gap-2 overflow-x-auto md:overflow-visible pb-1 md:pb-0">
+        <span class="shrink-0 text-[13px] text-ink-3">지역</span>
+        <div class="flex gap-2 shrink-0" data-axis="region" role="group" aria-label="지역 필터"></div>
+      </div>
+      <div class="flex items-center gap-2 overflow-x-auto md:overflow-visible pb-1 md:pb-0">
+        <span class="shrink-0 text-[13px] text-ink-3">낮/밤</span>
+        <div class="flex gap-2 shrink-0" data-axis="daynight" role="group" aria-label="낮/밤 필터"></div>
+      </div>
+      <div class="flex items-center gap-3 md:ml-auto">
+        <span id="filter-counter" class="text-[13px] font-medium text-ink-1 whitespace-nowrap">12곳 중 12곳</span>
+        <button id="clear-filters-btn" class="text-[13px] underline text-ink-2 whitespace-nowrap">전체 해제</button>
       </div>
     </div>
-    <p id="degraded-banner" class="hidden mt-3 text-sm bg-rose-900/70 text-rose-50 rounded-lg px-3 py-2 flex items-center gap-3 flex-wrap">
+    <p id="degraded-banner" class="hidden mt-3 glass-l2 glass-scrim rounded-card px-4 py-3 text-[13px] text-ink-1 flex items-center gap-3 flex-wrap">
       날씨 정보를 불러오지 못해 필터를 사용할 수 없습니다
-      <button id="retry-prefetch-btn" class="underline font-medium">재시도</button>
+      <button id="retry-prefetch-btn" class="underline font-medium text-accent">재시도</button>
     </p>
   </section>
 
@@ -147,13 +194,20 @@
   <main class="relative flex-1 flex items-center">
     <div id="scene-wrapper" class="w-full relative">
       <svg id="scene-svg" viewBox="0 0 1600 600" xmlns="http://www.w3.org/2000/svg" aria-label="세계 랜드마크 일러스트 씬">
+        <defs>
+          <linearGradient id="glassFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fff" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#fff" stop-opacity="0.08"/>
+          </linearGradient>
+        </defs>
+
         <!-- background mountains -->
-        <path d="M0,480 L120,380 L260,460 L420,340 L600,470 L760,360 L940,450 L1120,370 L1300,460 L1440,390 L1600,470 L1600,600 L0,600 Z" fill="var(--mountain-fill)" opacity="0.35"></path>
+        <path d="M0,480 L120,380 L260,460 L420,340 L600,470 L760,360 L940,450 L1120,370 L1300,460 L1440,390 L1600,470 L1600,600 L0,600 Z" fill="var(--mountain-fill,#3a4656)" opacity="0.35"></path>
 
         <g id="landmarks-layer"></g>
 
         <!-- foreground ground -->
-        <path d="M0,520 Q400,505 800,520 T1600,520 L1600,600 L0,600 Z" fill="var(--ground-fill)"></path>
+        <path d="M0,520 Q400,505 800,520 T1600,520 L1600,600 L0,600 Z" fill="var(--ground-fill,#1b2531)"></path>
 
         <rect id="night-overlay" x="0" y="0" width="1600" height="600" opacity="0"></rect>
       </svg>
@@ -164,10 +218,10 @@
       </div>
 
       <!-- empty filter overlay -->
-      <div id="empty-filter-overlay" class="hidden absolute inset-0 z-20 flex items-center justify-center">
-        <div class="bg-white/95 text-slate-900 rounded-2xl px-6 py-5 text-center shadow-xl">
-          <p class="font-semibold mb-3">조건에 맞는 곳이 없습니다</p>
-          <button id="empty-filter-reset-btn" class="px-4 py-2 rounded-full bg-slate-900 text-white text-sm">필터 초기화</button>
+      <div id="empty-filter-overlay" class="hidden absolute inset-0 z-20 flex items-center justify-center px-4">
+        <div class="glass-l1 glass-scrim rounded-panel px-6 py-6 text-center text-ink-1">
+          <p class="text-[15px] font-semibold mb-4">조건에 맞는 곳이 없습니다</p>
+          <button id="empty-filter-reset-btn" class="h-10 px-5 rounded-full bg-accent text-[#0F172A] text-[13px] font-semibold">필터 초기화</button>
         </div>
       </div>
     </div>
@@ -178,56 +232,58 @@
 <div id="panel-backdrop"></div>
 
 <!-- Detail panel -->
-<aside id="detail-panel" role="dialog" aria-modal="true" aria-labelledby="panel-title" tabindex="-1">
-  <div class="h-full flex flex-col p-5 overflow-y-auto">
-    <div class="flex items-start justify-between mb-4">
+<aside id="detail-panel" class="glass-l1 glass-scrim" role="dialog" aria-modal="true" aria-labelledby="panel-title" tabindex="-1">
+  <div id="drag-handle" class="md:hidden"></div>
+  <div class="h-full flex flex-col p-5 md:p-6 overflow-y-auto">
+    <div class="flex items-start justify-between mb-5 md:mb-6">
       <div>
-        <h2 id="panel-title" class="text-xl font-bold"></h2>
-        <p id="panel-subtitle" class="text-sm text-slate-300"></p>
+        <h2 id="panel-title" class="text-[24px] md:text-[28px] font-semibold leading-tight tracking-[-0.02em] text-ink-1"></h2>
+        <p id="panel-subtitle" class="text-[13px] text-ink-3 mt-1"></p>
       </div>
-      <button id="panel-close-btn" aria-label="닫기" class="text-2xl leading-none px-2 py-1 rounded hover:bg-white/10">×</button>
+      <button id="panel-close-btn" aria-label="닫기" class="text-2xl leading-none w-11 h-11 flex items-center justify-center rounded-full hover:bg-white/10 text-ink-1">×</button>
     </div>
 
     <!-- loading skeleton -->
     <div id="panel-skeleton" class="hidden space-y-4">
-      <div class="skel-block h-16 w-full"></div>
-      <div class="skel-block h-24 w-full"></div>
-      <div class="skel-block h-28 w-full"></div>
+      <div class="skel-block h-5 w-32 rounded-card"></div>
+      <div class="skel-block h-20 w-full rounded-card"></div>
+      <div class="skel-block h-28 w-full rounded-card"></div>
+      <div class="skel-block h-36 w-full rounded-card"></div>
     </div>
 
     <!-- error -->
-    <div id="panel-error" class="hidden">
-      <p id="panel-error-message" class="text-sm mb-3"></p>
+    <div id="panel-error" class="hidden flex flex-col items-center text-center py-8">
+      <span class="text-[40px] mb-3">⚠️</span>
+      <p id="panel-error-message" class="text-[15px] text-ink-1 mb-4"></p>
       <div class="flex gap-2">
-        <button id="panel-retry-btn" class="px-3 py-1.5 rounded-full bg-white text-slate-900 text-sm font-medium">재시도</button>
-        <button id="panel-error-close-btn" class="px-3 py-1.5 rounded-full bg-white/10 text-sm">닫기</button>
+        <button id="panel-retry-btn" class="h-10 px-4 rounded-card glass-l2 border border-danger text-[13px] font-medium text-ink-1">재시도</button>
+        <button id="panel-error-close-btn" class="h-10 px-4 rounded-card glass-l2 text-[13px] text-ink-1">닫기</button>
       </div>
     </div>
 
     <!-- content -->
     <div id="panel-content" class="hidden flex-1 flex flex-col">
-      <div class="mb-4">
-        <p id="panel-time" class="text-2xl font-semibold tabular-nums"></p>
-        <p id="panel-date" class="text-sm text-slate-300"></p>
-      </div>
+      <p id="panel-time" class="text-[18px] md:text-[20px] font-medium tabular-nums text-ink-1 tracking-[-0.01em]"></p>
+      <p id="panel-date" class="text-[13px] text-ink-3 mb-5 md:mb-6"></p>
 
-      <div class="flex items-center gap-4 mb-4">
-        <span id="panel-emoji" class="text-5xl"></span>
-        <div>
-          <p id="panel-temp" class="text-4xl font-bold tabular-nums"></p>
-          <p id="panel-weather-label" class="text-sm text-slate-300"></p>
+      <div class="flex items-start gap-4 mb-2">
+        <div class="flex items-start">
+          <span id="panel-temp-value" class="text-[56px] md:text-[72px] font-bold leading-none tracking-[-0.03em] text-ink-1 tabular-nums">-</span>
+          <span id="panel-temp-unit" class="text-[22px] md:text-[29px] font-bold text-ink-1 mt-1">°C</span>
         </div>
+        <span id="panel-emoji" class="text-[40px] md:text-[48px] mt-1"></span>
+      </div>
+      <p id="panel-weather-label" class="text-[15px] text-ink-2 mb-5 md:mb-6"></p>
+
+      <div class="grid grid-cols-2 gap-2.5 mb-6">
+        <div class="glass-l2 glass-scrim rounded-card px-4 py-3"><span class="block text-[13px] text-ink-3 mb-0.5">체감</span><span id="panel-feels" class="text-[20px] font-semibold text-ink-1"></span></div>
+        <div class="glass-l2 glass-scrim rounded-card px-4 py-3"><span class="block text-[13px] text-ink-3 mb-0.5">습도</span><span id="panel-humidity" class="text-[20px] font-semibold text-ink-1"></span></div>
+        <div class="glass-l2 glass-scrim rounded-card px-4 py-3"><span class="block text-[13px] text-ink-3 mb-0.5">강수</span><span id="panel-precip" class="text-[20px] font-semibold text-ink-1"></span></div>
+        <div class="glass-l2 glass-scrim rounded-card px-4 py-3"><span class="block text-[13px] text-ink-3 mb-0.5">풍속</span><span id="panel-wind" class="text-[20px] font-semibold text-ink-1"></span></div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 mb-6 text-sm">
-        <div class="bg-white/10 rounded-lg px-3 py-2"><span class="text-slate-400 block">체감</span><span id="panel-feels" class="font-medium"></span></div>
-        <div class="bg-white/10 rounded-lg px-3 py-2"><span class="text-slate-400 block">습도</span><span id="panel-humidity" class="font-medium"></span></div>
-        <div class="bg-white/10 rounded-lg px-3 py-2"><span class="text-slate-400 block">강수</span><span id="panel-precip" class="font-medium"></span></div>
-        <div class="bg-white/10 rounded-lg px-3 py-2"><span class="text-slate-400 block">풍속</span><span id="panel-wind" class="font-medium"></span></div>
-      </div>
-
-      <h3 class="text-sm font-semibold text-slate-300 mb-2">7일 예보</h3>
-      <div id="forecast-scroll" class="flex gap-2 overflow-x-auto pb-2"></div>
+      <h3 class="text-[13px] font-medium text-ink-3 mb-2.5">7일 예보</h3>
+      <div id="forecast-scroll" class="flex gap-2.5 overflow-x-auto pb-2"></div>
     </div>
   </div>
 </aside>
@@ -288,15 +344,6 @@
   };
   function getWeatherInfo(code){ return WEATHER_CODES[code] || {emoji:'🌡️', label:'정보 없음', group:'unknown'}; }
 
-  var BG_THEMES = {
-    clear:  { day:{from:'#7ec8e3', to:'#fff6b8', text:'dark'},  night:{from:'#16215c', to:'#04040c', text:'light'} },
-    cloudy: { day:{from:'#8b9bab', to:'#cdd8e3', text:'dark'},  night:{from:'#3a3f4b', to:'#101217', text:'light'} },
-    fog:    { day:{from:'#cfd3d4', to:'#ececeb', text:'dark'},  night:{from:'#4a4d4f', to:'#1e2022', text:'light'} },
-    rain:   { day:{from:'#5f7a8c', to:'#24384f', text:'light'}, night:{from:'#101a2e', to:'#04070d', text:'light'} },
-    snow:   { day:{from:'#e6e9ec', to:'#ffffff', text:'dark'},  night:{from:'#5b6b7f', to:'#1c2436', text:'light'} },
-    storm:  { day:{from:'#4a3b63', to:'#0d0d12', text:'light'}, night:{from:'#0d0d12', to:'#2c2044', text:'light'} }
-  };
-
   var REGION_CODE = { '아시아':'asia', '유럽':'europe', '북미':'namerica', '남미':'samerica', '아프리카':'africa', '오세아니아':'oceania' };
   var CODE_REGION = { asia:'아시아', europe:'유럽', namerica:'북미', samerica:'남미', africa:'아프리카', oceania:'오세아니아' };
   var WEATHER_AXIS_OPTIONS = [
@@ -334,6 +381,7 @@
   var searchDebounceId = null;
   var searchAbortController = null;
   var detailAbortController = null;
+  var hasPrefetchError = false;
 
   // ---------------- Fetch helpers ----------------
   function fetchJSON(url, opts){
@@ -449,7 +497,7 @@
     overlay.setAttribute('opacity', isLocalDay() ? '0' : '0.35');
   }
 
-  // ---------------- Background ----------------
+  // ---------------- Background (PRD FR-09 / DESIGN.md 3.1) ----------------
   function applyBackground(){
     var group = 'clear', dayNight = isLocalDay() ? 'day' : 'night';
     if(state.selected && state.phase === 'DETAIL_READY' && state.detail && state.detail.current){
@@ -457,14 +505,12 @@
       group = info.group === 'unknown' ? 'clear' : info.group;
       dayNight = state.detail.current.is_day === 1 ? 'day' : 'night';
     }
-    var theme = BG_THEMES[group][dayNight];
-    document.documentElement.style.setProperty('--bg-from', theme.from);
-    document.documentElement.style.setProperty('--bg-to', theme.to);
-    document.body.setAttribute('data-text', theme.text);
+    document.body.setAttribute('data-theme', group + '-' + dayNight);
   }
 
   // ---------------- Silhouettes (static markup, generated once) ----------------
   var X_POS = [100,227,355,482,609,736,864,991,1118,1245,1373,1500];
+  var TOP_OFFSET = { liberty:206, canyon:160, machu:160, christ:152, bigben:210, eiffel:260, colosseo:100, pyramid:135, taj:124, gyeongbok:90, fuji:185, opera:115 };
 
   var SILHOUETTES = {
     liberty: '<path class="silhouette" d="M -28,-40 L 28,-40 L 28,0 L -28,0 Z M -20,-40 L -12,-150 L 12,-150 L 20,-40 Z M -6,-150 Q 0,-175 6,-150 L 4,-150 L 4,-160 L -4,-160 L -4,-150 Z M -14,-172 L -6,-172 L -6,-190 L -14,-172 Z M -2,-172 L 6,-172 L -2,-192 Z M 6,-172 L 14,-172 L 14,-188 Z M 4,-150 L 34,-205 L 40,-205 L 44,-198 L 16,-148 Z M 42,-206 Q 46,-214 50,-206 Q 46,-210 42,-206 Z" />',
@@ -483,6 +529,8 @@
 
   var SCENE_LAYER_HTML = LANDMARKS.map(function(l, i){
     var x = X_POS[i];
+    var badgeY = 520 - TOP_OFFSET[l.id] - 12;
+    var delay = (i * 40) + 'ms';
     return '' +
     '<g class="landmark" data-id="' + l.id + '" role="button" tabindex="0" aria-label="' + l.name + ', ' + l.city + '">' +
       '<g transform="translate(' + x + ',520)">' +
@@ -491,29 +539,20 @@
         '<rect class="focus-ring" x="-50" y="-240" width="100" height="260" rx="8" />' +
         '<text class="label" x="0" y="30" text-anchor="middle">' + l.name + ' · ' + l.city + '</text>' +
       '</g>' +
-      '<g class="badge" transform="translate(' + x + ',140)" text-anchor="middle">' +
+      '<g class="badge" transform="translate(' + x + ',' + badgeY + ')" text-anchor="middle">' +
         '<g class="badge-skeleton skeleton-pulse" data-id="' + l.id + '">' +
-          '<rect x="-26" y="-16" width="52" height="26" rx="13"></rect>' +
+          '<rect x="-26" y="-14" width="52" height="28" rx="14"></rect>' +
         '</g>' +
-        '<g class="badge-content" data-id="' + l.id + '">' +
-          '<rect x="-30" y="-20" width="60" height="30" rx="15" fill="rgba(15,23,42,0.55)"></rect>' +
-          '<text class="badge-emoji" x="-14" y="1" text-anchor="middle">-</text>' +
-          '<text class="badge-temp" x="10" y="1" text-anchor="middle">-</text>' +
+        '<g class="badge-content" data-id="' + l.id + '" style="transition-delay:' + delay + '">' +
+          '<rect class="badge-pill" x="-28" y="-14" width="56" height="28" rx="14"></rect>' +
+          '<text class="badge-emoji" x="-13" y="5" text-anchor="middle">-</text>' +
+          '<text class="badge-temp" x="11" y="4" text-anchor="middle">-</text>' +
         '</g>' +
       '</g>' +
     '</g>';
   }).join('');
 
   document.getElementById('landmarks-layer').innerHTML = SCENE_LAYER_HTML;
-
-  // fix badge emoji/temp text positions properly (tspans)
-  LANDMARKS.forEach(function(l){
-    var content = document.querySelector('.badge-content[data-id="' + l.id + '"]');
-    var emojiText = content.querySelector('.badge-emoji');
-    var tempText = content.querySelector('.badge-temp');
-    emojiText.setAttribute('font-size', '15');
-    tempText.setAttribute('font-size', '13');
-  });
 
   // ---------------- Filter bar render ----------------
   var filterBarEl = document.getElementById('filter-bar');
@@ -522,8 +561,8 @@
   var daynightGroupEl = filterBarEl.querySelector('[data-axis="daynight"]');
 
   function chipHtml(axis, value, label){
-    return '<button type="button" class="chip text-xs md:text-sm px-3 py-1.5 rounded-full bg-white/70 text-slate-800" ' +
-      'data-axis="' + axis + '" data-value="' + value + '" aria-pressed="false">' + label + '</button>';
+    return '<button type="button" class="chip glass-l3" data-axis="' + axis + '" data-value="' + value + '" aria-pressed="false">' +
+      label + '<span class="chip-x">×</span></button>';
   }
   weatherGroupEl.innerHTML = WEATHER_AXIS_OPTIONS.map(function(o){ return chipHtml('weather', o.value, o.emoji + ' ' + o.label); }).join('');
   regionGroupEl.innerHTML = REGION_AXIS_OPTIONS.map(function(r){ return chipHtml('region', r, r); }).join('');
@@ -783,14 +822,15 @@
     searchDropdown.classList.remove('hidden');
     searchInput.setAttribute('aria-expanded', 'true');
     if(state.searchPhase === 'loading'){
-      searchDropdown.innerHTML = '<div class="px-4 py-3 text-sm text-slate-500">검색 중…</div>';
+      searchDropdown.innerHTML = '<div class="px-4 py-3 text-[13px] text-ink-3">검색 중…</div>';
       return;
     }
     if(state.searchPhase === 'empty'){
       searchDropdown.innerHTML =
-        '<div class="px-4 py-3 text-sm">' +
-          '<p class="font-medium mb-2">\'' + escapeHtml(state.searchQuery) + '\'에 해당하는 도시를 찾을 수 없습니다</p>' +
-          '<ul class="text-slate-500 list-disc pl-4 space-y-0.5">' +
+        '<div class="flex flex-col items-center text-center py-8 px-6">' +
+          '<span class="text-[40px] mb-3">🔍</span>' +
+          '<p class="text-[15px] font-semibold text-ink-1 mb-2">\'' + escapeHtml(state.searchQuery) + '\'에 해당하는 도시를 찾을 수 없습니다</p>' +
+          '<ul class="text-[13px] text-ink-3 space-y-0.5">' +
             '<li>철자를 확인해보세요</li>' +
             '<li>영문 이름으로도 검색해보세요</li>' +
             '<li>더 큰 도시명으로 검색해보세요</li>' +
@@ -802,9 +842,9 @@
       var flag = flagEmoji(r.country_code);
       var active = i === state.searchHighlight;
       return '<div role="option" id="search-opt-' + i + '" aria-selected="' + active + '" data-index="' + i + '" ' +
-        'class="px-4 py-2.5 text-sm cursor-pointer flex items-center gap-2 ' + (active ? 'bg-slate-900 text-white' : 'hover:bg-slate-100') + '">' +
+        'class="h-[52px] px-4 flex items-center gap-2 text-[15px] cursor-pointer text-ink-1" style="background:' + (active ? 'rgba(255,255,255,.16)' : 'transparent') + '">' +
         '<span>' + flag + '</span><span class="font-medium">' + escapeHtml(r.name) + '</span>' +
-        '<span class="text-slate-400">' + (r.admin1 ? escapeHtml(r.admin1) + ' · ' : '') + escapeHtml(r.country || '') + '</span>' +
+        '<span class="text-ink-3">' + (r.admin1 ? escapeHtml(r.admin1) + ' · ' : '') + escapeHtml(r.country || '') + '</span>' +
         '</div>';
     }).join('');
     if(state.searchHighlight >= 0){
@@ -828,7 +868,7 @@
   // ---------------- Forecast rendering ----------------
   function renderForecast(daily){
     var container = document.getElementById('forecast-scroll');
-    if(!daily || !daily.time){ container.innerHTML = '<p class="text-sm text-slate-400">–</p>'; return; }
+    if(!daily || !daily.time){ container.innerHTML = '<p class="text-[13px] text-ink-3">–</p>'; return; }
     var maxes = daily.temperature_2m_max || [];
     var mins = daily.temperature_2m_min || [];
     var globalMax = Math.max.apply(null, maxes);
@@ -836,34 +876,33 @@
     var range = (globalMax - globalMin) || 1;
     container.innerHTML = daily.time.map(function(dateStr, i){
       var d = new Date(dateStr + 'T00:00:00');
-      var dayLabel = i === 0 ? '오늘' : WEEKDAY_KO[d.getUTCDay()] + '요일';
+      var isToday = i === 0;
+      var dayLabel = isToday ? '오늘' : WEEKDAY_KO[d.getUTCDay()] + '요일';
       var mdLabel = (d.getUTCMonth()+1) + '/' + d.getUTCDate();
       var code = (daily.weather_code || [])[i];
-      var info = code !== undefined ? getWeatherInfo(code) : {emoji:'🌡️', label:'정보 없음'};
+      var info = code !== undefined ? getWeatherInfo(code) : {emoji:'🌡️'};
       var maxT = maxes[i], minT = mins[i];
       var pop = (daily.precipitation_probability_max || [])[i];
       var topPct = maxT !== undefined ? ((globalMax - maxT) / range) * 100 : 0;
       var botPct = minT !== undefined ? ((globalMax - minT) / range) * 100 : 100;
       return '' +
-      '<div class="forecast-card flex-shrink-0 w-[86px] bg-white/10 rounded-xl px-2 py-3 text-center">' +
-        '<p class="text-xs text-slate-300 mb-0.5">' + dayLabel + '</p>' +
-        '<p class="text-[11px] text-slate-400 mb-2">' + mdLabel + '</p>' +
-        '<p class="text-xl mb-2">' + info.emoji + '</p>' +
-        '<div class="relative h-14 w-3 mx-auto bg-white/10 rounded-full mb-2">' +
-          '<div class="absolute left-0 right-0 rounded-full bg-amber-300" style="top:' + topPct + '%; height:' + Math.max(botPct - topPct, 6) + '%;"></div>' +
+      '<div class="forecast-card glass-l2 glass-scrim rounded-card px-2.5 py-3.5 flex flex-col items-center text-center">' +
+        '<p class="text-[13px] font-semibold mb-0.5" style="color:' + (isToday ? '#FBBF24' : 'var(--ink-primary)') + '">' + dayLabel + '</p>' +
+        '<p class="text-[12px] text-ink-3 mb-2">' + mdLabel + '</p>' +
+        '<p class="text-[28px] mb-2 leading-none">' + info.emoji + '</p>' +
+        '<div class="relative w-1 h-10 rounded-full mb-2" style="background:rgba(255,255,255,.14);">' +
+          '<div class="absolute left-0 right-0 rounded-full" style="top:' + topPct + '%; height:' + Math.max(botPct - topPct, 8) + '%; background:linear-gradient(to top, #60A5FA, #FBBF24);"></div>' +
         '</div>' +
-        '<p class="text-xs font-semibold">' + (maxT !== undefined ? Math.round(maxT) + '°' : '–') + '</p>' +
-        '<p class="text-xs text-slate-400">' + (minT !== undefined ? Math.round(minT) + '°' : '–') + '</p>' +
-        '<p class="text-[11px] text-sky-300 mt-1">' + (pop !== undefined ? pop + '%' : '–') + '</p>' +
+        '<p class="text-[16px] font-bold text-ink-1 leading-tight">' + (maxT !== undefined ? Math.round(maxT) + '°' : '–') + '</p>' +
+        '<p class="text-[14px] text-ink-2 leading-tight">' + (minT !== undefined ? Math.round(minT) + '°' : '–') + '</p>' +
+        (pop !== undefined && pop > 0 ? '<p class="text-[12px] mt-1" style="color:#60A5FA;">' + pop + '%</p>' : '') +
       '</div>';
     }).join('');
   }
 
   // ---------------- Main render ----------------
-  var hasPrefetchError = false;
-
   function render(){
-    // badges + dimming
+    // badges + dimming + selected ring
     state.landmarks.forEach(function(l){
       var gEl = document.querySelector('.landmark[data-id="' + l.id + '"]');
       var skel = document.querySelector('.badge-skeleton[data-id="' + l.id + '"]');
@@ -886,6 +925,8 @@
       var visible = state.phase === 'SCENE_DEGRADED' ? true : isLandmarkVisible(l);
       gEl.classList.toggle('filtered-out', !visible);
       gEl.tabIndex = visible ? 0 : -1;
+      var isSelected = !!(state.selected && !state.selected.isSearchResult && state.selected.id === l.id);
+      gEl.classList.toggle('selected', isSelected);
     });
 
     // filter bar enabled/disabled
@@ -948,7 +989,7 @@
       var cur = state.detail.current || {};
       var info = cur.weather_code !== undefined ? getWeatherInfo(cur.weather_code) : {emoji:'🌡️', label:'정보 없음'};
       document.getElementById('panel-emoji').textContent = info.emoji;
-      document.getElementById('panel-temp').textContent = (cur.temperature_2m !== undefined ? Math.round(cur.temperature_2m) + '°C' : '–');
+      document.getElementById('panel-temp-value').textContent = (cur.temperature_2m !== undefined ? Math.round(cur.temperature_2m) : '–');
       document.getElementById('panel-weather-label').textContent = info.label;
       document.getElementById('panel-feels').textContent = cur.apparent_temperature !== undefined ? Math.round(cur.apparent_temperature) + '°C' : '–';
       document.getElementById('panel-humidity').textContent = cur.relative_humidity_2m !== undefined ? cur.relative_humidity_2m + '%' : '–';
